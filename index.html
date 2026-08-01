@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+<title>ECG Consultant — Structured Interpretation Tool</title>
+<meta name="description" content="Structured ECG interpretation workspace for clinicians.">
+<meta name="theme-color" content="#0f2540">
+<link rel="manifest" href="./manifest.json">
+
+<!-- iOS "Add to Home Screen" support -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ECG Consultant">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAFQ0lEQVR4nO3dW24bNxiG4ZGh+wLWaAm9cmRlCb1KojhdbQ+JnSyiiQ/JHiLJW+iFCsGV+M1wTuRP8n3gi0LQgeS85owxUDr75dffKsDlIvYAYBdxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSPOqmsUeA4xi54A0Z+OAws4BiTggEQck4oBEHJCIAxJxQCIOSMQBiXsrkNg5IM3ZN6Cwc0Diriwkdg5IxAGJOCARByTigEQckIgDEvdWIJWyczz/+PL840vsUSSmiDiOWdBHJ/nHcRIEffjLP45z9OGpxDjgqdS7smXOuiN2DkiZx/H8ncuL/jKPQyEaH4XGAR/EAankeyvFTtwXOwck4oCUcxzP3z/HHkLayv3GW7ET95fzzoGByo1jz0mnTblxoFWpd2UPSp67B3YOSNnGsX/ikmKobOPAcCXfW6nKnns7dg5IxAGp6Dj2T3exh2Ba0XGgWZ5xsCWMIs84MIoE4tg/3bETRGE9jmMW9BGe6ThOgqCPwBK7K7t/uru8ejPmOyY1/cDs7hz7R/aJyFK8t9Iy4P3j7fmDl1dvnY8nOP1w7O4co7u8env+oCgGVWU2joZjxuEMxmgcsIA4IFmMgxOHEUl+463HmBtekuIKhGFx5xhi59p1Fq6/U9DKXBzOo9vjORjOXBywo6w4nOcX4/vQ7vE21ghtxWH8OIV3XJAoicyrWZpX652G3fpkk4uwe/h0+sjj7eLVu2ADsLVzOA1cjpCrmRlDcZz/onR9cqd3ME7NJeQcDcWBo+YCgvVhPQ5OChFZiSOnM8JAPksRZrmsxIED/6MeoA/TcRzPKSOeXJxvZXzfinVuNRFHv2Nz8irnm6R1ydJ1HaZu2kQcqPSRPvStKp+0D7txpPVLP5GXixB+QeLHYfx8H8aQRZhuAS+qahb7R/F5Wqcn9HhmiB99QtmcPHPxauN85u7h0xQD6/l1yN39xz4v87ZYbU4GtlhtHB/aOnj/2fk9c+qJH52vwPFx5xh2Dy0DW6zcYTWIf1oZItihivJx0aUdx5HzsPX4Xen6ERNpHvm482pgMY6pJ+98fzu7gs/0w/RhK45gvxPwYSiOQxk2+wiwr3SdfoCFuhj3r88hWj+0di1Hv79NR3n+uA4T7HQU6tXGuSbq/bv+zPvNxH9MU9vef4w1GCOLMN0wDJ1WYE0OcWxdFwQj/j45378EOcSBiaT4b4J56jGvDi+pV+/zXbr/JLZz1Kv3073P9v7vUd48G4nFEV7JxST2j9R20G9eY9/FTRo7Rx/19ThnN+PyjKOQgze1POMYy/ZbuRccVYpxsCsEk14c0ZVTJ3FAKjcO5wbw8iKj8AuOquQ40CrDeyv19c2wSTW9dvCbpyTJnaO+vok9hCIkGUcA229/xR5CfMQBiTg6KO10luNd2YEzanh5fmvViJ0DUqpx1Gv3Dq8e72T7lavRqko3jlE4S6KMoyT/N14NppvOcn2T2Vq1KnrnQLOE41j+/6SwXN8sx7jgwFHa91aW6w8/v/55+I/pJ5LwQvXT84vUdizXH7L5FGsSPq1gasQBiTgglR6Hz8VEmRccFXGgQY53ZUdX6hKxc0AijhbL14VecFTEgQbEASnteytBlLs+7BxNlq9/jz2EmIij9AIaEAck4oBEHBKnG+KARBxVdbZJsGcczOpS70ef+/nPHxVlvDCrC753gGacViDl9o03jIh7K5A4rUAiDkjEAYk4IBEHJOKARByQiAMScUAiDkh8VxYS91YgcVqBRByQiAMScUAiDkjEAYk4IBEHJOKARByQiAPSv37/DDFVSLm+AAAAAElFTkSuQmCC">
+<link rel="icon" type="image/png" sizes="180x180" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAFQ0lEQVR4nO3dW24bNxiG4ZGh+wLWaAm9cmRlCb1KojhdbQ+JnSyiiQ/JHiLJW+iFCsGV+M1wTuRP8n3gi0LQgeS85owxUDr75dffKsDlIvYAYBdxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSPOqmsUeA4xi54A0Z+OAws4BiTggEQck4oBEHJCIAxJxQCIOSMQBiXsrkNg5IM3ZN6Cwc0Diriwkdg5IxAGJOCARByTigEQckIgDEvdWIJWyczz/+PL840vsUSSmiDiOWdBHJ/nHcRIEffjLP45z9OGpxDjgqdS7smXOuiN2DkiZx/H8ncuL/jKPQyEaH4XGAR/EAankeyvFTtwXOwck4oCUcxzP3z/HHkLayv3GW7ET95fzzoGByo1jz0mnTblxoFWpd2UPSp67B3YOSNnGsX/ikmKobOPAcCXfW6nKnns7dg5IxAGp6Dj2T3exh2Ba0XGgWZ5xsCWMIs84MIoE4tg/3bETRGE9jmMW9BGe6ThOgqCPwBK7K7t/uru8ejPmOyY1/cDs7hz7R/aJyFK8t9Iy4P3j7fmDl1dvnY8nOP1w7O4co7u8env+oCgGVWU2joZjxuEMxmgcsIA4IFmMgxOHEUl+463HmBtekuIKhGFx5xhi59p1Fq6/U9DKXBzOo9vjORjOXBywo6w4nOcX4/vQ7vE21ghtxWH8OIV3XJAoicyrWZpX652G3fpkk4uwe/h0+sjj7eLVu2ADsLVzOA1cjpCrmRlDcZz/onR9cqd3ME7NJeQcDcWBo+YCgvVhPQ5OChFZiSOnM8JAPksRZrmsxIED/6MeoA/TcRzPKSOeXJxvZXzfinVuNRFHv2Nz8irnm6R1ydJ1HaZu2kQcqPSRPvStKp+0D7txpPVLP5GXixB+QeLHYfx8H8aQRZhuAS+qahb7R/F5Wqcn9HhmiB99QtmcPHPxauN85u7h0xQD6/l1yN39xz4v87ZYbU4GtlhtHB/aOnj/2fk9c+qJH52vwPFx5xh2Dy0DW6zcYTWIf1oZItihivJx0aUdx5HzsPX4Xen6ERNpHvm482pgMY6pJ+98fzu7gs/0w/RhK45gvxPwYSiOQxk2+wiwr3SdfoCFuhj3r88hWj+0di1Hv79NR3n+uA4T7HQU6tXGuSbq/bv+zPvNxH9MU9vef4w1GCOLMN0wDJ1WYE0OcWxdFwQj/j45378EOcSBiaT4b4J56jGvDi+pV+/zXbr/JLZz1Kv3073P9v7vUd48G4nFEV7JxST2j9R20G9eY9/FTRo7Rx/19ThnN+PyjKOQgze1POMYy/ZbuRccVYpxsCsEk14c0ZVTJ3FAKjcO5wbw8iKj8AuOquQ40CrDeyv19c2wSTW9dvCbpyTJnaO+vok9hCIkGUcA229/xR5CfMQBiTg6KO10luNd2YEzanh5fmvViJ0DUqpx1Gv3Dq8e72T7lavRqko3jlE4S6KMoyT/N14NppvOcn2T2Vq1KnrnQLOE41j+/6SwXN8sx7jgwFHa91aW6w8/v/55+I/pJ5LwQvXT84vUdizXH7L5FGsSPq1gasQBiTgglR6Hz8VEmRccFXGgQY53ZUdX6hKxc0AijhbL14VecFTEgQbEASnteytBlLs+7BxNlq9/jz2EmIij9AIaEAck4oBEHBKnG+KARBxVdbZJsGcczOpS70ef+/nPHxVlvDCrC753gGacViDl9o03jIh7K5A4rUAiDkjEAYk4IBEHJOKARByQiAMScUAiDkh8VxYS91YgcVqBRByQiAMScUAiDkjEAYk4IBEHJOKARByQiAPSv37/DDFVSLm+AAAAAElFTkSuQmCC">
+<style>
+  :root{
+    --navy:#0f2540; --navy2:#16324f; --accent:#2b6cb0; --accent2:#1a4971;
+    --red:#c0392b; --redbg:#fdeceb; --amber:#b7791f; --amberbg:#fdf6e3;
+    --green:#2f7d5b; --bg:#f4f6f9; --card:#ffffff; --border:#dde3ec; --text:#1c2733; --muted:#5b6b7c;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
+  a.skip-link{position:absolute;left:-999px;top:auto;background:#fff;color:var(--navy);padding:10px 16px;border-radius:0 0 8px 0;z-index:1000;font-weight:600;}
+  a.skip-link:focus{left:0;top:0;}
+  :focus-visible{outline:3px solid #7fb2e6;outline-offset:2px;border-radius:4px;}
+  header{background:linear-gradient(120deg,var(--navy),var(--navy2));color:#fff;padding:calc(22px + env(safe-area-inset-top)) 28px 22px;padding-left:calc(28px + env(safe-area-inset-left));padding-right:calc(28px + env(safe-area-inset-right));}
+  header .htitle{display:flex;align-items:center;gap:10px;}
+  header h1{margin:0;font-size:1.5rem;letter-spacing:.2px;}
+  header p{margin:4px 0 0;opacity:.9;font-size:.9rem;}
+  #critBanner{display:none;background:var(--red);color:#fff;padding:12px 28px;font-weight:600;font-size:.95rem;align-items:center;gap:10px;animation:slideDown .2s ease-out;}
+  @keyframes slideDown{from{transform:translateY(-8px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  main{max-width:1180px;margin:0 auto;padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media(max-width:900px){main{grid-template-columns:1fr;padding:16px;}}
+  .full{grid-column:1/-1;}
+  section.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 22px;box-shadow:0 1px 2px rgba(15,37,64,.04);transition:box-shadow .2s ease-out;}
+  section.card:focus-within{box-shadow:0 2px 10px rgba(43,108,176,.12);}
+  section.card h2{margin:0 0 4px;font-size:1.02rem;color:var(--navy);display:flex;align-items:center;gap:8px;}
+  section.card h2 .num{background:var(--accent);color:#fff;width:24px;height:24px;border-radius:50%;font-size:.75rem;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+  section.card h2 .icon{width:20px;height:20px;flex-shrink:0;color:var(--accent);}
+  .sub{color:#48566a;font-size:.8rem;margin:0 0 14px;}
+  label{display:block;font-size:.82rem;font-weight:600;color:var(--navy2);margin:14px 0 6px;}
+  label:first-child{margin-top:0;}
+  input[type=text],input[type=number],select,textarea{
+    width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:.9rem;font-family:inherit;background:#fbfcfe;color:var(--text);min-height:44px;transition:border-color .15s ease-out,box-shadow .15s ease-out;
+  }
+  textarea{resize:vertical;min-height:64px;line-height:1.5;}
+  input:hover,select:hover,textarea:hover{border-color:#b7c3d4;}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(43,108,176,.15);outline:none;}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+  @media(max-width:520px){.row,.row3{grid-template-columns:1fr;}}
+  .hint{font-size:.74rem;color:#5b6b7c;margin-top:4px;}
+  .calcbox{background:#eef3fa;border:1px dashed var(--accent);border-radius:8px;padding:12px 14px;margin-top:12px;font-size:.85rem;}
+  .calcbox b{color:var(--accent2);}
+  button{cursor:pointer;font-family:inherit;font-weight:600;border-radius:7px;border:none;padding:11px 18px;font-size:.85rem;min-height:44px;transition:background-color .15s ease-out,transform .1s ease-out,box-shadow .15s ease-out;display:inline-flex;align-items:center;gap:8px;}
+  button:active{transform:scale(.97);}
+  button:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  button .icon{width:16px;height:16px;flex-shrink:0;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:hover:not(:disabled){background:var(--accent2);box-shadow:0 2px 8px rgba(43,108,176,.3);}
+  .btn-ghost{background:#eef1f5;color:var(--navy2);}
+  .btn-ghost:hover:not(:disabled){background:#e2e7ee;}
+  .btn-danger{background:var(--red);color:#fff;}
+  .btn-danger:hover:not(:disabled){background:#a53226;}
+  .spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  #dropZone{border:2px dashed var(--border);border-radius:10px;padding:22px;text-align:center;color:#48566a;cursor:pointer;font-size:.85rem;background:#fafbfd;transition:border-color .15s ease-out,background-color .15s ease-out;min-height:44px;}
+  #dropZone:hover,#dropZone:focus-visible{border-color:var(--accent);background:#f3f7fc;}
+  #dropZone.drag{border-color:var(--accent);background:#eef3fa;}
+  #ecgPreview{max-width:100%;margin-top:12px;border-radius:8px;border:1px solid var(--border);display:none;}
+  .critGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-top:10px;}
+  @media(max-width:520px){.critGrid{grid-template-columns:1fr;}}
+  .critItem{display:flex;align-items:center;gap:9px;font-size:.83rem;background:#f7f8fa;border:1px solid var(--border);border-radius:6px;padding:10px 12px;min-height:44px;cursor:pointer;transition:background-color .15s ease-out,border-color .15s ease-out;}
+  .critItem:hover{background:#eef1f5;}
+  .critItem input{width:18px;height:18px;flex-shrink:0;accent-color:var(--red);}
+  .critItem.on{background:var(--redbg);border-color:var(--red);color:var(--red);font-weight:600;}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .toolbar .spacer{flex:1;}
+  #aiStatus{font-size:.8rem;color:#48566a;}
+  #reportOut{white-space:pre-wrap;font-family:'SFMono-Regular',Consolas,monospace;font-size:.82rem;background:#0f2540;color:#dce8f5;padding:16px;border-radius:8px;max-height:480px;overflow:auto;}
+  dialog{border:none;border-radius:10px;padding:0;width:min(480px,90vw);box-shadow:0 12px 40px rgba(15,37,64,.25);}
+  dialog::backdrop{background:rgba(15,37,64,.45);}
+  dialog .dbody{padding:20px;}
+  dialog h3{margin-top:0;}
+  .badge{display:inline-block;font-size:.7rem;padding:3px 9px;border-radius:12px;background:var(--amberbg);color:var(--amber);font-weight:700;margin-left:6px;}
+  footer{max-width:1180px;margin:0 auto;padding:6px 24px calc(40px + env(safe-area-inset-bottom));color:#48566a;font-size:.75rem;line-height:1.6;}
+  @supports (-webkit-touch-callout: none){ body{ -webkit-text-size-adjust:100%; } }
+  .qtc{font-weight:700;}
+  .qtc.long{color:var(--red);}
+  visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<header>
+  <div class="htitle">
+    <svg class="icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    <h1>ECG Consultant</h1>
+  </div>
+  <p>Structured ECG interpretation workspace — technical quality → rate/rhythm → axis/intervals → morphology → interpretation → clinical correlation → recommendations</p>
+</header>
+
+<div id="critBanner" role="alert" aria-live="assertive">
+  <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  <span id="critBannerText">CRITICAL FINDING FLAGGED — review urgency and escalate care immediately.</span>
+</div>
+
+<main id="main">
+
+  <!-- Patient context + image -->
+  <section class="card full">
+    <h2><span class="num">0</span> Case Context & ECG Image</h2>
+    <p class="sub">Not part of the 7 formal sections, but needed for accurate correlation.</p>
+    <div class="row3">
+      <div><label for="p_age">Age</label><input type="text" id="p_age" placeholder="e.g. 64" inputmode="numeric" autocomplete="off"></div>
+      <div><label for="p_sex">Sex</label>
+        <select id="p_sex"><option value="">—</option><option>Male</option><option>Female</option></select>
+      </div>
+      <div><label for="p_symptoms">Presenting symptom(s)</label><input type="text" id="p_symptoms" placeholder="chest pain, palpitations, syncope..." autocomplete="off"></div>
+    </div>
+    <label for="p_history">Relevant history / medications</label>
+    <textarea id="p_history" placeholder="prior MI, CKD, digoxin, antiarrhythmics, electrolyte status..."></textarea>
+    <label for="p_tracingtype">Tracing type</label>
+    <select id="p_tracingtype">
+      <option>Baseline</option><option>Serial / follow-up</option><option>Acute presentation</option>
+    </select>
+
+    <label for="dropZone" style="margin-top:14px;">ECG image (optional — for your reference and AI assist)</label>
+    <div id="dropZone" tabindex="0" role="button" aria-label="Upload ECG image, click or drag and drop" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('fileInput').click();}">Click to upload, or drag an ECG image here</div>
+    <input type="file" id="fileInput" accept="image/*" style="display:none;" aria-hidden="true" tabindex="-1">
+    <img id="ecgPreview" alt="Uploaded ECG tracing preview">
+  </section>
+
+  <!-- Section 1: Technical -->
+  <section class="card">
+    <h2><span class="num">1</span> Technical Assessment</h2>
+    <p class="sub">Calibration, lead placement, artifacts.</p>
+    <label for="t_cal">Calibration (10mm/mV, 25mm/s confirmed?)</label>
+    <input type="text" id="t_cal" placeholder="e.g. Standard calibration confirmed">
+    <label for="t_artifact">Lead placement / artifact issues</label>
+    <textarea id="t_artifact" placeholder="e.g. baseline wander, muscle tremor, misplaced limb leads..."></textarea>
+    <label for="t_quality">Overall tracing quality</label>
+    <select id="t_quality"><option>Adequate for interpretation</option><option>Suboptimal — interpret with caution</option><option>Non-diagnostic / repeat required</option></select>
+  </section>
+
+  <!-- Section 2: Rate & Rhythm + calculator -->
+  <section class="card">
+    <h2><span class="num">2</span> Rate and Rhythm</h2>
+    <div class="row">
+      <div>
+        <label for="hr_method">Method</label>
+        <select id="hr_method" onchange="calcHR()">
+          <option value="boxes">300 ÷ large boxes between R waves</option>
+          <option value="small">1500 ÷ small boxes between R waves</option>
+          <option value="count">R waves in 6-sec strip × 10 (irregular rhythm)</option>
+        </select>
+      </div>
+      <div><label id="hr_inputLabel" for="hr_value">Large boxes between R-R</label><input type="number" id="hr_value" step="0.1" oninput="calcHR()" aria-describedby="hr_result_row"></div>
+    </div>
+    <div class="calcbox" id="hr_result_row" aria-live="polite">Calculated heart rate: <b id="hr_result">—</b> bpm</div>
+    <label for="rhy_reg" style="margin-top:12px;">Rhythm regularity</label>
+    <select id="rhy_reg"><option>Regular</option><option>Regularly irregular</option><option>Irregularly irregular</option></select>
+    <label for="rhy_origin">Rhythm origin</label>
+    <select id="rhy_origin"><option>Sinus</option><option>Non-sinus (specify below)</option><option>Uncertain</option></select>
+    <label for="rhy_notes">Rhythm notes / diagnosis (e.g. sinus arrhythmia, AF, flutter, SVT, VT)</label>
+    <textarea id="rhy_notes"></textarea>
+  </section>
+
+  <!-- Section 3: Axis & Intervals -->
+  <section class="card">
+    <h2><span class="num">3</span> Axis and Intervals</h2>
+    <label for="ax_axis">Cardiac axis</label>
+    <select id="ax_axis"><option>Normal (-30° to +90°)</option><option>Left axis deviation</option><option>Right axis deviation</option><option>Extreme axis deviation</option><option>Indeterminate</option></select>
+    <div class="row3">
+      <div><label for="int_pr">PR interval (ms)</label><input type="number" id="int_pr" oninput="calcQTc()" inputmode="numeric"></div>
+      <div><label for="int_qrs">QRS width (ms)</label><input type="number" id="int_qrs" oninput="calcQTc()" inputmode="numeric"></div>
+      <div><label for="int_qt">QT interval (ms)</label><input type="number" id="int_qt" oninput="calcQTc()" inputmode="numeric"></div>
+    </div>
+    <label for="int_rr">R-R interval (ms) — for QTc (Bazett)</label>
+    <input type="number" id="int_rr" oninput="calcQTc()" inputmode="numeric" aria-describedby="qtc_result_row">
+    <div class="calcbox" id="qtc_result_row" aria-live="polite">QTc (Bazett): <span class="qtc" id="qtc_result">—</span> ms</div>
+  </section>
+
+  <!-- Section 4: Morphology -->
+  <section class="card full">
+    <h2><span class="num">4</span> Morphology Analysis</h2>
+    <div class="row">
+      <div><label for="m_p">P waves — presence, morphology, P:QRS relationship</label><textarea id="m_p"></textarea></div>
+      <div><label for="m_qrs">QRS complex — width, morphology, BBB pattern, hypertrophy</label><textarea id="m_qrs"></textarea></div>
+    </div>
+    <div class="row">
+      <div><label for="m_st">ST segment — elevation / depression, morphology, leads involved</label><textarea id="m_st"></textarea></div>
+      <div><label for="m_t">T waves — inversion, hyperacute changes, symmetry</label><textarea id="m_t"></textarea></div>
+    </div>
+    <label for="m_u">U waves</label>
+    <input type="text" id="m_u" placeholder="absent / present — location, prominence">
+  </section>
+
+  <!-- Section 5: Interpretation + critical findings -->
+  <section class="card full">
+    <h2><span class="num">5</span> Interpretation</h2>
+    <div class="row">
+      <div><label for="i_primary">Primary diagnosis</label><input type="text" id="i_primary" placeholder="e.g. Anterior STEMI"></div>
+      <div><label for="i_urgency">Severity / urgency</label>
+        <select id="i_urgency"><option>Routine / non-urgent</option><option>Requires prompt evaluation</option><option>Urgent — time-sensitive</option><option>Life-threatening — immediate action required</option></select>
+      </div>
+    </div>
+    <label for="i_ddx">Differential diagnoses</label>
+    <textarea id="i_ddx"></textarea>
+
+    <label id="critLabel" style="margin-top:14px;">Critical findings checklist <span class="badge">flags red banner above</span></label>
+    <div class="critGrid" id="critGrid" role="group" aria-labelledby="critLabel">
+      <label class="critItem"><input type="checkbox" data-label="STEMI pattern"> STEMI pattern</label>
+      <label class="critItem"><input type="checkbox" data-label="NSTEMI / ischemia pattern"> NSTEMI / ischemia pattern</label>
+      <label class="critItem"><input type="checkbox" data-label="Ventricular tachycardia (VT)"> Ventricular tachycardia (VT)</label>
+      <label class="critItem"><input type="checkbox" data-label="Ventricular fibrillation (VF)"> Ventricular fibrillation (VF)</label>
+      <label class="critItem"><input type="checkbox" data-label="High-grade / complete AV block"> High-grade / complete AV block</label>
+      <label class="critItem"><input type="checkbox" data-label="Hyperkalemia pattern"> Hyperkalemia pattern</label>
+      <label class="critItem"><input type="checkbox" data-label="Drug toxicity pattern (e.g. digoxin, TCA)"> Drug toxicity pattern</label>
+      <label class="critItem"><input type="checkbox" data-label="Long QT / Torsades risk"> Long QT / Torsades risk</label>
+    </div>
+  </section>
+
+  <!-- Section 6 & 7 -->
+  <section class="card">
+    <h2><span class="num">6</span> Clinical Correlation</h2>
+    <label for="c_condition">Likely underlying condition(s)</label>
+    <textarea id="c_condition"></textarea>
+    <label for="c_symptoms">Typical symptoms / presentation context</label>
+    <textarea id="c_symptoms"></textarea>
+    <label for="c_significance">Incidental vs clinically significant</label>
+    <select id="c_significance"><option>Likely clinically significant</option><option>Possibly incidental — correlate clinically</option><option>Uncertain — further data needed</option></select>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">7</span> Recommendations</h2>
+    <label for="r_immediate">Immediate management steps (if urgent)</label>
+    <textarea id="r_immediate"></textarea>
+    <label for="r_investigations">Further investigations (troponin, echo, labs, etc.)</label>
+    <textarea id="r_investigations"></textarea>
+    <label for="r_escalation">Escalation criteria</label>
+    <textarea id="r_escalation"></textarea>
+  </section>
+
+  <!-- AI Assist -->
+  <section class="card full">
+    <h2><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg> Optional AI Assist</h2>
+    <p class="sub">Sends the ECG image (if uploaded), case context, and the cardiology-consultant system prompt to the Claude API using your own API key. Suggestions appear below for you to review, verify, and copy into the sections above — they do not overwrite your entries automatically.</p>
+    <div class="toolbar">
+      <button class="btn-ghost" onclick="document.getElementById('keyDialog').showModal()" aria-haspopup="dialog">API Key Settings</button>
+      <button class="btn-primary" id="aiAssistBtn" onclick="runAIAssist()">Analyze with AI</button>
+      <span class="spacer"></span>
+      <span id="aiStatus" role="status" aria-live="polite"></span>
+    </div>
+    <div id="aiOut" style="margin-top:12px;"></div>
+  </section>
+
+  <!-- Report -->
+  <section class="card full">
+    <div class="toolbar">
+      <h2 style="margin:0;"><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Compiled Report</h2>
+      <span class="spacer"></span>
+      <button class="btn-ghost" onclick="buildReport()">Generate / Refresh Report</button>
+      <button class="btn-ghost" onclick="copyReport()">Copy to Clipboard</button>
+      <button class="btn-primary" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+    <pre id="reportOut" style="margin-top:12px;" aria-live="polite">Click "Generate / Refresh Report" to compile all sections.</pre>
+  </section>
+
+</main>
+
+<footer>
+  Clinical decision-support tool for licensed healthcare professionals. Not a diagnostic device and not a substitute for independent clinical judgment, correlation with the patient's full presentation, and institutional protocols. AI-generated suggestions must be independently verified before acting on them. All data stays on this device except when you explicitly use AI Assist, which sends the entered data and image to Anthropic's API using your own key.
+</footer>
+
+<dialog id="keyDialog" aria-labelledby="keyDialogTitle">
+  <div class="dbody">
+    <h3 id="keyDialogTitle">Anthropic API Key</h3>
+    <p class="sub">Stored only in this browser's local storage on this device. Get a key at console.anthropic.com.</p>
+    <label for="apiKeyInput" class="vh">Anthropic API key</label>
+    <input type="text" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off">
+    <div class="toolbar" style="margin-top:14px;">
+      <button class="btn-ghost" onclick="document.getElementById('keyDialog').close()">Cancel</button>
+      <span class="spacer"></span>
+      <button class="btn-danger" onclick="clearKey()">Clear Key</button>
+      <button class="btn-primary" onclick="saveKey()">Save</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+const SYSTEM_PROMPT = `You are a senior cardiology consultant with over 20 years of clinical experience, specializing in electrocardiography (ECG) interpretation, acute cardiac care, and arrhythmia management. You function as an expert AI ECG interpreter designed to assist healthcare professionals by providing accurate, structured, and clinically meaningful ECG analyses.
+Your responsibilities include:
+1. When an ECG strip or image is uploaded, perform a complete, step-by-step interpretation using a systematic approach:
+- Confirm technical quality (calibration, lead placement issues, artifacts)
+- Determine heart rate (calculate and show method if possible)
+- Assess rhythm (regular vs irregular, sinus vs non-sinus)
+- Evaluate cardiac axis
+- Analyze intervals: PR, QRS, QT/QTc
+- Examine P waves (presence, morphology, relation to QRS)
+- Evaluate QRS complexes (width, morphology, bundle branch blocks, hypertrophy patterns)
+- Assess ST segments (elevation, depression, morphology)
+- Evaluate T waves (inversion, hyperacute changes, symmetry)
+- Identify U waves if present
+2. Provide a clear clinical interpretation including primary diagnosis, differential diagnoses, severity and urgency.
+3. Highlight critical findings explicitly: ACS (STEMI/NSTEMI), dangerous arrhythmias (VT, VF, high-grade AV block), electrolyte abnormalities, drug effects/toxicity.
+4. Correlate ECG findings with possible clinical scenarios: likely underlying conditions, typical symptoms/presentations, incidental vs clinically significant.
+5. Provide actionable recommendations: immediate management if urgent, further investigations, escalation criteria.
+6. Structure every response with: Section 1 Technical Assessment, Section 2 Rate and Rhythm, Section 3 Axis and Intervals, Section 4 Morphology Analysis (P, QRS, ST, T, U), Section 5 Interpretation, Section 6 Clinical Correlation, Section 7 Recommendations.
+7. If the image is unclear or incomplete, state limitations explicitly and provide the best possible interpretation with caution, or ask for a better image.
+8. Maintain high clinical accuracy, avoid speculation beyond available data, and clearly distinguish confirmed findings from possible interpretations.
+9. Communicate in a professional, concise, clinically precise manner suitable for physicians and advanced healthcare providers.
+10. Always prioritize patient safety — clearly emphasize urgency for life-threatening patterns.`;
+
+let uploadedImageBase64 = null, uploadedImageMedia = null;
+
+// ---- image upload ----
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+function handleFile(file){
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const dataUrl = e.target.result;
+    uploadedImageMedia = file.type || 'image/png';
+    uploadedImageBase64 = dataUrl.split(',')[1];
+    const img = document.getElementById('ecgPreview');
+    img.src = dataUrl; img.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ---- heart rate calculator ----
+function calcHR(){
+  const method = document.getElementById('hr_method').value;
+  const label = document.getElementById('hr_inputLabel');
+  const v = parseFloat(document.getElementById('hr_value').value);
+  let result = '—';
+  if (method === 'boxes') { label.textContent = 'Large boxes between R-R'; if (v>0) result = Math.round(300/v); }
+  else if (method === 'small') { label.textContent = 'Small boxes between R-R'; if (v>0) result = Math.round(1500/v); }
+  else { label.textContent = 'R waves counted in 6-sec strip'; if (v>0) result = Math.round(v*10); }
+  document.getElementById('hr_result').textContent = result;
+}
+
+// ---- QTc calculator (Bazett) ----
+function calcQTc(){
+  const qt = parseFloat(document.getElementById('int_qt').value);
+  const rr = parseFloat(document.getElementById('int_rr').value);
+  const el = document.getElementById('qtc_result');
+  if (qt>0 && rr>0){
+    const qtc = Math.round(qt / Math.sqrt(rr/1000));
+    el.textContent = qtc;
+    el.className = 'qtc' + (qtc > 450 ? ' long' : '');
+  } else { el.textContent = '—'; el.className = 'qtc'; }
+}
+
+// ---- critical findings banner ----
+document.querySelectorAll('#critGrid input[type=checkbox]').forEach(cb => {
+  cb.addEventListener('change', updateCritBanner);
+});
+function updateCritBanner(){
+  const checked = Array.from(document.querySelectorAll('#critGrid input:checked')).map(c => c.parentElement.dataset.label);
+  document.querySelectorAll('#critGrid .critItem').forEach(item => {
+    item.classList.toggle('on', item.querySelector('input').checked);
+  });
+  const banner = document.getElementById('critBanner');
+  const text = document.getElementById('critBannerText');
+  if (checked.length){
+    banner.style.display = 'flex';
+    text.textContent = 'CRITICAL FINDING(S) FLAGGED: ' + checked.join(', ') + ' — confirm and escalate care per protocol.';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+// ---- API key storage ----
+function saveKey(){
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (val) localStorage.setItem('ecg_app_api_key', val);
+  document.getElementById('keyDialog').close();
+}
+function clearKey(){
+  localStorage.removeItem('ecg_app_api_key');
+  document.getElementById('apiKeyInput').value = '';
+}
+window.addEventListener('load', () => {
+  const k = localStorage.getItem('ecg_app_api_key');
+  if (k) document.getElementById('apiKeyInput').value = k;
+  calcHR(); calcQTc();
+});
+
+// ---- AI assist ----
+async function runAIAssist(){
+  const key = localStorage.getItem('ecg_app_api_key');
+  const status = document.getElementById('aiStatus');
+  const out = document.getElementById('aiOut');
+  const btn = document.getElementById('aiAssistBtn');
+  if (!key){ status.textContent = 'Add your API key first (API Key Settings).'; return; }
+
+  const originalLabel = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" aria-hidden="true"></span> Analyzing…';
+
+  const context = `Case context:
+Age: ${document.getElementById('p_age').value || 'unspecified'}
+Sex: ${document.getElementById('p_sex').value || 'unspecified'}
+Presenting symptoms: ${document.getElementById('p_symptoms').value || 'unspecified'}
+History/medications: ${document.getElementById('p_history').value || 'unspecified'}
+Tracing type: ${document.getElementById('p_tracingtype').value}
+
+Please interpret the attached ECG following the required 7-section structure.`;
+
+  const contentArr = [{ type: 'text', text: context }];
+  if (uploadedImageBase64){
+    contentArr.push({ type: 'image', source: { type: 'base64', media_type: uploadedImageMedia, data: uploadedImageBase64 } });
+  } else {
+    contentArr[0].text += '\n\n(No ECG image was uploaded — base any interpretation strictly on the context above and state this limitation explicitly.)';
+  }
+
+  status.textContent = 'Contacting Claude API...';
+  out.innerHTML = '';
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 2000,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: contentArr }]
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok){
+      status.textContent = 'Error: ' + (data.error?.message || resp.statusText);
+      return;
+    }
+    const text = data.content?.map(c => c.text).join('\n') || '(no content returned)';
+    status.textContent = 'Done. Review below and copy relevant parts into the sections above.';
+    out.innerHTML = '<pre style="white-space:pre-wrap;background:#f7f8fa;border:1px solid var(--border);border-radius:8px;padding:14px;font-size:.85rem;line-height:1.5;">' +
+      text.replace(/</g,'&lt;') + '</pre>';
+  } catch(err){
+    status.textContent = 'Request failed: ' + err.message + ' (network/CORS restrictions may block direct browser calls to the Anthropic API in some environments — consider a small local proxy if this persists).';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalLabel;
+  }
+}
+
+// ---- report builder ----
+function val(id){ const el = document.getElementById(id); return el.value || '(not entered)'; }
+function buildReport(){
+  const crit = Array.from(document.querySelectorAll('#critGrid input:checked')).map(c => c.parentElement.dataset.label);
+  const report = `ECG STRUCTURED INTERPRETATION REPORT
+Generated: ${new Date().toLocaleString()}
+================================================================
+
+CASE CONTEXT
+  Age/Sex: ${val('p_age')} / ${val('p_sex')}
+  Presenting symptoms: ${val('p_symptoms')}
+  History/medications: ${val('p_history')}
+  Tracing type: ${val('p_tracingtype')}
+
+SECTION 1 — TECHNICAL ASSESSMENT
+  Calibration: ${val('t_cal')}
+  Artifact/lead issues: ${val('t_artifact')}
+  Overall quality: ${val('t_quality')}
+
+SECTION 2 — RATE AND RHYTHM
+  Heart rate: ${document.getElementById('hr_result').textContent} bpm (method: ${document.getElementById('hr_method').selectedOptions[0].text})
+  Regularity: ${val('rhy_reg')}
+  Origin: ${val('rhy_origin')}
+  Notes: ${val('rhy_notes')}
+
+SECTION 3 — AXIS AND INTERVALS
+  Axis: ${val('ax_axis')}
+  PR: ${val('int_pr')} ms | QRS: ${val('int_qrs')} ms | QT: ${val('int_qt')} ms | R-R: ${val('int_rr')} ms
+  QTc (Bazett): ${document.getElementById('qtc_result').textContent} ms
+
+SECTION 4 — MORPHOLOGY ANALYSIS
+  P waves: ${val('m_p')}
+  QRS complex: ${val('m_qrs')}
+  ST segment: ${val('m_st')}
+  T waves: ${val('m_t')}
+  U waves: ${val('m_u')}
+
+SECTION 5 — INTERPRETATION
+  Primary diagnosis: ${val('i_primary')}
+  Differential diagnoses: ${val('i_ddx')}
+  Severity/urgency: ${val('i_urgency')}
+  CRITICAL FINDINGS FLAGGED: ${crit.length ? crit.join(', ') : 'None flagged'}
+
+SECTION 6 — CLINICAL CORRELATION
+  Likely underlying condition(s): ${val('c_condition')}
+  Typical symptoms/presentation: ${val('c_symptoms')}
+  Incidental vs significant: ${val('c_significance')}
+
+SECTION 7 — RECOMMENDATIONS
+  Immediate management: ${val('r_immediate')}
+  Further investigations: ${val('r_investigations')}
+  Escalation criteria: ${val('r_escalation')}
+
+----------------------------------------------------------------
+This report is a clinical decision-support summary and does not replace independent physician judgment, full clinical correlation, and institutional protocols.`;
+  document.getElementById('reportOut').textContent = report;
+}
+function copyReport(){
+  const text = document.getElementById('reportOut').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    document.getElementById('aiStatus').textContent = 'Report copied to clipboard.';
+  });
+}
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
