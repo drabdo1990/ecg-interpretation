@@ -1,4 +1,4 @@
-const CACHE_NAME = "ecg-consultant-v1";
+const CACHE_NAME = "ecg-consultant-v2";
 const ASSETS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", (event) => {
@@ -18,17 +18,29 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
+  const req = event.request;
+  if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;
+
+  const putInCache = (res) => {
+    if (res.ok) {
+      const resClone = res.clone();
+      caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+    }
+    return res;
+  };
+
+  // Pages: network first so updates reach users; fall back to cache offline.
+  if (req.mode === "navigate") {
+    event.respondWith(
+      fetch(req).then(putInCache).catch(() =>
+        caches.match(req).then((cached) => cached || caches.match("./index.html"))
+      )
+    );
+    return;
+  }
+
+  // Static assets: cache first.
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request)
-        .then((res) => {
-          const resClone = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone));
-          return res;
-        })
-        .catch(() => cached);
-    })
+    caches.match(req).then((cached) => cached || fetch(req).then(putInCache))
   );
 });

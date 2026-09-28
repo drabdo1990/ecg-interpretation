@@ -67,8 +67,6 @@
   .btn-ghost:hover:not(:disabled){background:#e2e7ee;}
   .btn-danger{background:var(--red);color:#fff;}
   .btn-danger:hover:not(:disabled){background:#a53226;}
-  .spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg);}}
   #dropZone{border:2px dashed var(--border);border-radius:10px;padding:22px;text-align:center;color:#48566a;cursor:pointer;font-size:.85rem;background:#fafbfd;transition:border-color .15s ease-out,background-color .15s ease-out;min-height:44px;}
   #dropZone:hover,#dropZone:focus-visible{border-color:var(--accent);background:#f3f7fc;}
   #dropZone.drag{border-color:var(--accent);background:#eef3fa;}
@@ -81,19 +79,20 @@
   .critItem.on{background:var(--redbg);border-color:var(--red);color:var(--red);font-weight:600;}
   .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
   .toolbar .spacer{flex:1;}
-  #aiStatus{font-size:.8rem;color:#48566a;}
   #reportOut{white-space:pre-wrap;font-family:'SFMono-Regular',Consolas,monospace;font-size:.82rem;background:#0f2540;color:#dce8f5;padding:16px;border-radius:8px;max-height:480px;overflow:auto;}
-  dialog{border:none;border-radius:10px;padding:0;width:min(480px,90vw);box-shadow:0 12px 40px rgba(15,37,64,.25);}
-  dialog::backdrop{background:rgba(15,37,64,.45);}
-  dialog .dbody{padding:20px;}
-  dialog h3{margin-top:0;}
   .badge{display:inline-block;font-size:.7rem;padding:3px 9px;border-radius:12px;background:var(--amberbg);color:var(--amber);font-weight:700;margin-left:6px;}
   footer{max-width:1180px;margin:0 auto;padding:6px 24px calc(40px + env(safe-area-inset-bottom));color:#48566a;font-size:.75rem;line-height:1.6;}
   @supports (-webkit-touch-callout: none){ body{ -webkit-text-size-adjust:100%; } }
   .qtc{font-weight:700;}
   .qtc.long{color:var(--red);}
-  visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
   .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  @media print{
+    header,#critBanner,footer,a.skip-link,main > section:not(#reportCard),#reportCard .toolbar button,#reportStatus{display:none!important;}
+    body{background:#fff;}
+    main{display:block;padding:0;max-width:none;}
+    #reportCard{border:none;box-shadow:none;padding:0;}
+    #reportOut{background:#fff;color:#000;max-height:none;overflow:visible;padding:0;font-size:10pt;}
+  }
 </style>
 </head>
 <body>
@@ -122,7 +121,7 @@
     <div class="row3">
       <div><label for="p_age">Age</label><input type="text" id="p_age" placeholder="e.g. 64" inputmode="numeric" autocomplete="off"></div>
       <div><label for="p_sex">Sex</label>
-        <select id="p_sex"><option value="">—</option><option>Male</option><option>Female</option></select>
+        <select id="p_sex" onchange="calcQTc()"><option value="">—</option><option>Male</option><option>Female</option></select>
       </div>
       <div><label for="p_symptoms">Presenting symptom(s)</label><input type="text" id="p_symptoms" placeholder="chest pain, palpitations, syncope..." autocomplete="off"></div>
     </div>
@@ -133,7 +132,7 @@
       <option>Baseline</option><option>Serial / follow-up</option><option>Acute presentation</option>
     </select>
 
-    <label for="dropZone" style="margin-top:14px;">ECG image (optional — for your reference and AI assist)</label>
+    <label for="dropZone" style="margin-top:14px;">ECG image (optional — for your reference while filling the assessment)</label>
     <div id="dropZone" tabindex="0" role="button" aria-label="Upload ECG image, click or drag and drop" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('fileInput').click();}">Click to upload, or drag an ECG image here</div>
     <input type="file" id="fileInput" accept="image/*" style="display:none;" aria-hidden="true" tabindex="-1">
     <img id="ecgPreview" alt="Uploaded ECG tracing preview">
@@ -250,27 +249,15 @@
     <textarea id="r_escalation"></textarea>
   </section>
 
-  <!-- AI Assist -->
-  <section class="card full">
-    <h2><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg> Optional AI Assist</h2>
-    <p class="sub">Sends the ECG image (if uploaded), case context, and the cardiology-consultant system prompt to the Claude API using your own API key. Suggestions appear below for you to review, verify, and copy into the sections above — they do not overwrite your entries automatically.</p>
-    <div class="toolbar">
-      <button class="btn-ghost" onclick="document.getElementById('keyDialog').showModal()" aria-haspopup="dialog">API Key Settings</button>
-      <button class="btn-primary" id="aiAssistBtn" onclick="runAIAssist()">Analyze with AI</button>
-      <span class="spacer"></span>
-      <span id="aiStatus" role="status" aria-live="polite"></span>
-    </div>
-    <div id="aiOut" style="margin-top:12px;"></div>
-  </section>
-
   <!-- Report -->
-  <section class="card full">
+  <section class="card full" id="reportCard">
     <div class="toolbar">
       <h2 style="margin:0;"><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Compiled Report</h2>
       <span class="spacer"></span>
+      <span id="reportStatus" role="status" aria-live="polite" style="font-size:.8rem;color:#48566a;"></span>
       <button class="btn-ghost" onclick="buildReport()">Generate / Refresh Report</button>
       <button class="btn-ghost" onclick="copyReport()">Copy to Clipboard</button>
-      <button class="btn-primary" onclick="window.print()">Print / Save as PDF</button>
+      <button class="btn-primary" onclick="buildReport();window.print()">Print / Save as PDF</button>
     </div>
     <pre id="reportOut" style="margin-top:12px;" aria-live="polite">Click "Generate / Refresh Report" to compile all sections.</pre>
   </section>
@@ -278,50 +265,10 @@
 </main>
 
 <footer>
-  Clinical decision-support tool for licensed healthcare professionals. Not a diagnostic device and not a substitute for independent clinical judgment, correlation with the patient's full presentation, and institutional protocols. AI-generated suggestions must be independently verified before acting on them. All data stays on this device except when you explicitly use AI Assist, which sends the entered data and image to Anthropic's API using your own key.
+  Clinical decision-support tool for licensed healthcare professionals. Not a diagnostic device and not a substitute for independent clinical judgment, correlation with the patient's full presentation, and institutional protocols. All entered data and images stay on this device — nothing is sent to any server.
 </footer>
 
-<dialog id="keyDialog" aria-labelledby="keyDialogTitle">
-  <div class="dbody">
-    <h3 id="keyDialogTitle">Anthropic API Key</h3>
-    <p class="sub">Stored only in this browser's local storage on this device. Get a key at console.anthropic.com.</p>
-    <label for="apiKeyInput" class="vh">Anthropic API key</label>
-    <input type="text" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off">
-    <div class="toolbar" style="margin-top:14px;">
-      <button class="btn-ghost" onclick="document.getElementById('keyDialog').close()">Cancel</button>
-      <span class="spacer"></span>
-      <button class="btn-danger" onclick="clearKey()">Clear Key</button>
-      <button class="btn-primary" onclick="saveKey()">Save</button>
-    </div>
-  </div>
-</dialog>
-
 <script>
-const SYSTEM_PROMPT = `You are a senior cardiology consultant with over 20 years of clinical experience, specializing in electrocardiography (ECG) interpretation, acute cardiac care, and arrhythmia management. You function as an expert AI ECG interpreter designed to assist healthcare professionals by providing accurate, structured, and clinically meaningful ECG analyses.
-Your responsibilities include:
-1. When an ECG strip or image is uploaded, perform a complete, step-by-step interpretation using a systematic approach:
-- Confirm technical quality (calibration, lead placement issues, artifacts)
-- Determine heart rate (calculate and show method if possible)
-- Assess rhythm (regular vs irregular, sinus vs non-sinus)
-- Evaluate cardiac axis
-- Analyze intervals: PR, QRS, QT/QTc
-- Examine P waves (presence, morphology, relation to QRS)
-- Evaluate QRS complexes (width, morphology, bundle branch blocks, hypertrophy patterns)
-- Assess ST segments (elevation, depression, morphology)
-- Evaluate T waves (inversion, hyperacute changes, symmetry)
-- Identify U waves if present
-2. Provide a clear clinical interpretation including primary diagnosis, differential diagnoses, severity and urgency.
-3. Highlight critical findings explicitly: ACS (STEMI/NSTEMI), dangerous arrhythmias (VT, VF, high-grade AV block), electrolyte abnormalities, drug effects/toxicity.
-4. Correlate ECG findings with possible clinical scenarios: likely underlying conditions, typical symptoms/presentations, incidental vs clinically significant.
-5. Provide actionable recommendations: immediate management if urgent, further investigations, escalation criteria.
-6. Structure every response with: Section 1 Technical Assessment, Section 2 Rate and Rhythm, Section 3 Axis and Intervals, Section 4 Morphology Analysis (P, QRS, ST, T, U), Section 5 Interpretation, Section 6 Clinical Correlation, Section 7 Recommendations.
-7. If the image is unclear or incomplete, state limitations explicitly and provide the best possible interpretation with caution, or ask for a better image.
-8. Maintain high clinical accuracy, avoid speculation beyond available data, and clearly distinguish confirmed findings from possible interpretations.
-9. Communicate in a professional, concise, clinically precise manner suitable for physicians and advanced healthcare providers.
-10. Always prioritize patient safety — clearly emphasize urgency for life-threatening patterns.`;
-
-let uploadedImageBase64 = null, uploadedImageMedia = null;
-
 // ---- image upload ----
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
@@ -338,8 +285,6 @@ function handleFile(file){
   const reader = new FileReader();
   reader.onload = function(e){
     const dataUrl = e.target.result;
-    uploadedImageMedia = file.type || 'image/png';
-    uploadedImageBase64 = dataUrl.split(',')[1];
     const img = document.getElementById('ecgPreview');
     img.src = dataUrl; img.style.display = 'block';
   };
@@ -366,7 +311,8 @@ function calcQTc(){
   if (qt>0 && rr>0){
     const qtc = Math.round(qt / Math.sqrt(rr/1000));
     el.textContent = qtc;
-    el.className = 'qtc' + (qtc > 450 ? ' long' : '');
+    const limit = document.getElementById('p_sex').value === 'Female' ? 460 : 450;
+    el.className = 'qtc' + (qtc > limit ? ' long' : '');
   } else { el.textContent = '—'; el.className = 'qtc'; }
 }
 
@@ -375,7 +321,7 @@ document.querySelectorAll('#critGrid input[type=checkbox]').forEach(cb => {
   cb.addEventListener('change', updateCritBanner);
 });
 function updateCritBanner(){
-  const checked = Array.from(document.querySelectorAll('#critGrid input:checked')).map(c => c.parentElement.dataset.label);
+  const checked = Array.from(document.querySelectorAll('#critGrid input:checked')).map(c => c.dataset.label);
   document.querySelectorAll('#critGrid .critItem').forEach(item => {
     item.classList.toggle('on', item.querySelector('input').checked);
   });
@@ -389,89 +335,12 @@ function updateCritBanner(){
   }
 }
 
-// ---- API key storage ----
-function saveKey(){
-  const val = document.getElementById('apiKeyInput').value.trim();
-  if (val) localStorage.setItem('ecg_app_api_key', val);
-  document.getElementById('keyDialog').close();
-}
-function clearKey(){
-  localStorage.removeItem('ecg_app_api_key');
-  document.getElementById('apiKeyInput').value = '';
-}
-window.addEventListener('load', () => {
-  const k = localStorage.getItem('ecg_app_api_key');
-  if (k) document.getElementById('apiKeyInput').value = k;
-  calcHR(); calcQTc();
-});
-
-// ---- AI assist ----
-async function runAIAssist(){
-  const key = localStorage.getItem('ecg_app_api_key');
-  const status = document.getElementById('aiStatus');
-  const out = document.getElementById('aiOut');
-  const btn = document.getElementById('aiAssistBtn');
-  if (!key){ status.textContent = 'Add your API key first (API Key Settings).'; return; }
-
-  const originalLabel = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner" aria-hidden="true"></span> Analyzing…';
-
-  const context = `Case context:
-Age: ${document.getElementById('p_age').value || 'unspecified'}
-Sex: ${document.getElementById('p_sex').value || 'unspecified'}
-Presenting symptoms: ${document.getElementById('p_symptoms').value || 'unspecified'}
-History/medications: ${document.getElementById('p_history').value || 'unspecified'}
-Tracing type: ${document.getElementById('p_tracingtype').value}
-
-Please interpret the attached ECG following the required 7-section structure.`;
-
-  const contentArr = [{ type: 'text', text: context }];
-  if (uploadedImageBase64){
-    contentArr.push({ type: 'image', source: { type: 'base64', media_type: uploadedImageMedia, data: uploadedImageBase64 } });
-  } else {
-    contentArr[0].text += '\n\n(No ECG image was uploaded — base any interpretation strictly on the context above and state this limitation explicitly.)';
-  }
-
-  status.textContent = 'Contacting Claude API...';
-  out.innerHTML = '';
-  try{
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 2000,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: contentArr }]
-      })
-    });
-    const data = await resp.json();
-    if (!resp.ok){
-      status.textContent = 'Error: ' + (data.error?.message || resp.statusText);
-      return;
-    }
-    const text = data.content?.map(c => c.text).join('\n') || '(no content returned)';
-    status.textContent = 'Done. Review below and copy relevant parts into the sections above.';
-    out.innerHTML = '<pre style="white-space:pre-wrap;background:#f7f8fa;border:1px solid var(--border);border-radius:8px;padding:14px;font-size:.85rem;line-height:1.5;">' +
-      text.replace(/</g,'&lt;') + '</pre>';
-  } catch(err){
-    status.textContent = 'Request failed: ' + err.message + ' (network/CORS restrictions may block direct browser calls to the Anthropic API in some environments — consider a small local proxy if this persists).';
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = originalLabel;
-  }
-}
+window.addEventListener('load', () => { calcHR(); calcQTc(); });
 
 // ---- report builder ----
 function val(id){ const el = document.getElementById(id); return el.value || '(not entered)'; }
 function buildReport(){
-  const crit = Array.from(document.querySelectorAll('#critGrid input:checked')).map(c => c.parentElement.dataset.label);
+  const crit = Array.from(document.querySelectorAll('#critGrid input:checked')).map(c => c.dataset.label);
   const report = `ECG STRUCTURED INTERPRETATION REPORT
 Generated: ${new Date().toLocaleString()}
 ================================================================
@@ -528,7 +397,7 @@ This report is a clinical decision-support summary and does not replace independ
 function copyReport(){
   const text = document.getElementById('reportOut').textContent;
   navigator.clipboard.writeText(text).then(() => {
-    document.getElementById('aiStatus').textContent = 'Report copied to clipboard.';
+    document.getElementById('reportStatus').textContent = 'Report copied to clipboard.';
   });
 }
 </script>
