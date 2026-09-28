@@ -77,6 +77,13 @@
   .critItem:hover{background:#eef1f5;}
   .critItem input{width:18px;height:18px;flex-shrink:0;accent-color:var(--red);}
   .critItem.on{background:var(--redbg);border-color:var(--red);color:var(--red);font-weight:600;}
+  .chkItem{display:flex;align-items:center;gap:9px;font-size:.83rem;background:#f7f8fa;border:1px solid var(--border);border-radius:6px;padding:10px 12px;min-height:44px;cursor:pointer;font-weight:400;color:var(--text);margin:0;transition:background-color .15s ease-out,border-color .15s ease-out;}
+  .chkItem:hover{background:#eef1f5;}
+  .chkItem input{width:18px;height:18px;flex-shrink:0;accent-color:var(--accent);}
+  .chkItem.on{background:#eef3fa;border-color:var(--accent);color:var(--accent2);font-weight:600;}
+  h3.subhead{font-size:.9rem;color:var(--navy);margin:20px 0 2px;padding-top:14px;border-top:1px solid var(--border);}
+  .calcbox .warn{color:var(--red);font-weight:600;}
+  .calcbox ul{margin:6px 0 0;padding-left:18px;}
   .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
   .toolbar .spacer{flex:1;}
   #reportOut{white-space:pre-wrap;font-family:'SFMono-Regular',Consolas,monospace;font-size:.82rem;background:#0f2540;color:#dce8f5;padding:16px;border-radius:8px;max-height:480px;overflow:auto;}
@@ -176,8 +183,16 @@
   <!-- Section 3: Axis & Intervals -->
   <section class="card">
     <h2><span class="num">3</span> Axis and Intervals</h2>
-    <label for="ax_axis">Cardiac axis</label>
-    <select id="ax_axis"><option>Normal (-30° to +90°)</option><option>Left axis deviation</option><option>Right axis deviation</option><option>Extreme axis deviation</option><option>Indeterminate</option></select>
+    <p class="sub">Quick-check: net QRS deflection in leads I, aVF and II.</p>
+    <div class="row3">
+      <div><label for="ax_I">Lead I</label><select id="ax_I" onchange="calcAxis()"><option value="">—</option><option value="pos">Positive</option><option value="neg">Negative</option><option value="iso">Isoelectric</option></select></div>
+      <div><label for="ax_aVF">aVF</label><select id="ax_aVF" onchange="calcAxis()"><option value="">—</option><option value="pos">Positive</option><option value="neg">Negative</option><option value="iso">Isoelectric</option></select></div>
+      <div><label for="ax_II">Lead II</label><select id="ax_II" onchange="calcAxis()"><option value="">—</option><option value="pos">Positive</option><option value="neg">Negative</option><option value="iso">Isoelectric</option></select></div>
+    </div>
+    <div class="calcbox" id="ax_result_row" aria-live="polite">Suggested axis: <b id="ax_result">—</b></div>
+    <label for="ax_axis">Cardiac axis <span class="hint" style="font-weight:400;">(auto-filled from quick-check; override if needed)</span></label>
+    <select id="ax_axis" onchange="renderAxisCauses();updateConduction()"><option>Normal (-30° to +90°)</option><option>Left axis deviation</option><option>Right axis deviation</option><option>Extreme axis deviation</option><option>Indeterminate</option></select>
+    <div id="axCauses"></div>
     <div class="row3">
       <div><label for="int_pr">PR interval (ms)</label><input type="number" id="int_pr" oninput="calcQTc()" inputmode="numeric"></div>
       <div><label for="int_qrs">QRS width (ms)</label><input type="number" id="int_qrs" oninput="calcQTc()" inputmode="numeric"></div>
@@ -199,6 +214,26 @@
       <div><label for="m_st">ST segment — elevation / depression, morphology, leads involved</label><textarea id="m_st"></textarea></div>
       <div><label for="m_t">T waves — inversion, hyperacute changes, symmetry</label><textarea id="m_t"></textarea></div>
     </div>
+    <h3 class="subhead">Bundle branch &amp; fascicular block</h3>
+    <div class="row">
+      <div><label for="m_bbb">Conduction pattern</label>
+        <select id="m_bbb" onchange="renderBBB()">
+          <option>None</option><option>Complete RBBB</option><option>Incomplete RBBB</option><option>Complete LBBB</option><option>Incomplete LBBB</option><option>Non-specific intraventricular conduction delay (IVCD)</option>
+        </select>
+      </div>
+      <div><label for="m_bbb_new">Chronicity</label>
+        <select id="m_bbb_new" onchange="updateConduction()"><option>Known / old (unchanged from prior ECG)</option><option>New or presumed new</option><option>Unknown — no prior ECG available</option></select>
+      </div>
+    </div>
+    <div id="bbbCriteria"></div>
+    <div id="sgarbossa"></div>
+    <label id="fascLabel" style="margin-top:14px;">Fascicular block</label>
+    <div class="critGrid" id="fascGrid" role="group" aria-labelledby="fascLabel">
+      <label class="chkItem"><input type="checkbox" data-label="Left anterior fascicular block (LAFB)"> LAFB — LAD ≤ −45°, qR in I/aVL, rS in II/III/aVF</label>
+      <label class="chkItem"><input type="checkbox" data-label="Left posterior fascicular block (LPFB)"> LPFB — RAD ≥ +120°, rS in I/aVL, qR in III/aVF</label>
+    </div>
+    <div class="calcbox" id="bbb_summary" aria-live="polite">Conduction summary: —</div>
+
     <label for="m_u">U waves</label>
     <input type="text" id="m_u" placeholder="absent / present — location, prominence">
   </section>
@@ -316,6 +351,105 @@ function calcQTc(){
   } else { el.textContent = '—'; el.className = 'qtc'; }
 }
 
+// ---- axis quick-check ----
+const AXIS = { normal:'Normal (-30° to +90°)', lad:'Left axis deviation', rad:'Right axis deviation', extreme:'Extreme axis deviation', indet:'Indeterminate' };
+function calcAxis(){
+  const I = document.getElementById('ax_I').value, F = document.getElementById('ax_aVF').value, II = document.getElementById('ax_II').value;
+  let axis = null, text = '—';
+  if (I && F){
+    if (I==='iso' && F==='iso') { axis = AXIS.indet; text = 'Indeterminate (limb leads equiphasic)'; }
+    else if (I==='iso') { axis = F==='pos' ? AXIS.normal : AXIS.lad; text = F==='pos' ? 'Normal (≈ +90°)' : 'Left axis deviation (≈ −90°)'; }
+    else if (F==='iso') { axis = I==='pos' ? AXIS.normal : AXIS.rad; text = I==='pos' ? 'Normal (≈ 0°)' : 'Right axis deviation (≈ ±180°)'; }
+    else if (I==='pos' && F==='pos') { axis = AXIS.normal; text = 'Normal (0° to +90°)'; }
+    else if (I==='neg' && F==='pos') { axis = AXIS.rad; text = 'Right axis deviation (+90° to +180°)'; }
+    else if (I==='neg' && F==='neg') { axis = AXIS.extreme; text = 'Extreme axis deviation (−90° to ±180°)'; }
+    else if (!II) { text = 'Normal or left axis deviation — check lead II'; }
+    else if (II==='pos') { axis = AXIS.normal; text = 'Normal (0° to −30°, physiological left)'; }
+    else if (II==='neg') { axis = AXIS.lad; text = 'Left axis deviation (−30° to −90°)'; }
+    else { axis = AXIS.lad; text = 'Borderline left axis (≈ −30°)'; }
+  }
+  document.getElementById('ax_result').textContent = text;
+  if (axis){ document.getElementById('ax_axis').value = axis; renderAxisCauses(); updateConduction(); }
+}
+
+const AXIS_CAUSES = {
+  'Left axis deviation': ['Left anterior fascicular block (LAFB)','Left ventricular hypertrophy','Inferior myocardial infarction','Left bundle branch block','Ventricular pacing (RV apical)','Pre-excitation (WPW)','Ostium primum ASD'],
+  'Right axis deviation': ['Left posterior fascicular block (LPFB)','Right ventricular hypertrophy','Acute pulmonary embolism / RV strain','Chronic lung disease (COPD)','Lateral myocardial infarction','Limb lead reversal (LA/RA)','Dextrocardia','Sodium-channel blocker toxicity (e.g. TCA)','Normal variant (young / slim habitus)'],
+  'Extreme axis deviation': ['Ventricular tachycardia','Ventricular paced rhythm','Severe hyperkalemia','Limb lead reversal','Severe RVH / emphysema']
+};
+function renderChecks(containerId, title, items){
+  const el = document.getElementById(containerId);
+  if (!items){ el.innerHTML = ''; return; }
+  const lid = containerId + 'Label';
+  el.innerHTML = `<label id="${lid}" style="margin-top:14px;">${title}</label><div class="critGrid" role="group" aria-labelledby="${lid}">` +
+    items.map(t => `<label class="chkItem"><input type="checkbox" data-label="${t}"> ${t}</label>`).join('') + '</div>';
+}
+function renderAxisCauses(){
+  const a = document.getElementById('ax_axis').value;
+  renderChecks('axCauses', 'Possible cause(s) of ' + a.toLowerCase(), AXIS_CAUSES[a]);
+}
+
+// ---- bundle branch & fascicular block ----
+const BBB_CRITERIA = {
+  'Complete RBBB': ['QRS duration ≥ 120 ms','rSR′ ("M"-shaped) pattern in V1–V2','Wide, slurred S wave in I, aVL, V5–V6','Secondary ST depression / T inversion in V1–V3'],
+  'Incomplete RBBB': ['QRS duration 110–119 ms','rSR′ pattern in V1–V2','Slurred S wave in I and V6'],
+  'Complete LBBB': ['QRS duration ≥ 120 ms','Broad, notched or monophasic R in I, aVL, V5–V6','Absent septal q waves in I, V5–V6','Deep S or QS complex in V1','R-wave peak time > 60 ms in V5–V6','Discordant ST-T changes (opposite to QRS)'],
+  'Incomplete LBBB': ['QRS duration 110–119 ms','Absent septal q waves in I, V5–V6','LVH-like pattern with delayed R-peak in V5–V6'],
+  'Non-specific intraventricular conduction delay (IVCD)': ['QRS duration > 110 ms','Morphology does not meet RBBB or LBBB criteria']
+};
+const SGARBOSSA = ['Concordant ST elevation ≥ 1 mm in any lead with a positive QRS','Concordant ST depression ≥ 1 mm in V1–V3','Excessively discordant ST elevation ≥ 25% of preceding S-wave depth (Smith-modified)'];
+function renderBBB(){
+  const b = document.getElementById('m_bbb').value;
+  renderChecks('bbbCriteria', b + ' — criteria present', BBB_CRITERIA[b]);
+  renderChecks('sgarbossa', 'Sgarbossa criteria (suspected MI in LBBB)', b === 'Complete LBBB' ? SGARBOSSA : null);
+  updateConduction();
+}
+function checkedLabels(sel){ return Array.from(document.querySelectorAll(sel + ' input:checked')).map(c => c.dataset.label); }
+function conductionFindings(){
+  const b = document.getElementById('m_bbb').value;
+  const chron = document.getElementById('m_bbb_new').value;
+  const axis = document.getElementById('ax_axis').value;
+  const qrs = parseFloat(document.getElementById('int_qrs').value);
+  const pr = parseFloat(document.getElementById('int_pr').value);
+  const fasc = checkedLabels('#fascGrid');
+  const lafb = fasc.some(f => f.includes('LAFB')), lpfb = fasc.some(f => f.includes('LPFB'));
+  const notes = [], warns = [];
+  if (b !== 'None'){
+    const n = checkedLabels('#bbbCriteria').length, tot = (BBB_CRITERIA[b] || []).length;
+    notes.push(`${b} — ${n}/${tot} criteria ticked; ${chron.charAt(0).toLowerCase() + chron.slice(1)}`);
+  }
+  if (qrs > 0){
+    if (b.startsWith('Complete') && qrs < 120) warns.push(`QRS ${qrs} ms is < 120 ms — does not meet complete BBB duration.`);
+    if (b.startsWith('Incomplete') && (qrs < 110 || qrs >= 120)) warns.push(`QRS ${qrs} ms is outside the 110–119 ms expected for incomplete BBB.`);
+    if (b === 'None' && qrs >= 120) warns.push(`QRS ${qrs} ms (≥ 120) with no conduction pattern selected — consider BBB, IVCD, ventricular rhythm, pre-excitation, hyperkalemia or drug toxicity.`);
+  }
+  if (lafb && lpfb) warns.push('LAFB and LPFB ticked together — re-check (would imply block of both left fascicles).');
+  if (lafb && axis !== AXIS.lad) warns.push('LAFB requires left axis deviation (−45° or beyond).');
+  if (lpfb && axis !== AXIS.rad) warns.push('LPFB requires right axis deviation (≥ +120°) after excluding RVH / lateral MI.');
+  if (b === 'Complete RBBB' && (lafb || lpfb)){
+    notes.push('Bifascicular block (RBBB + ' + (lafb ? 'LAFB' : 'LPFB') + ')');
+    if (pr > 200) warns.push(`Bifascicular block with PR ${pr} ms (> 200) — "trifascicular" pattern; risk of high-grade AV block, assess for syncope and pacing need.`);
+  }
+  if (b === 'Complete LBBB'){
+    if (checkedLabels('#sgarbossa').length) warns.push('Sgarbossa-positive LBBB — treat as STEMI equivalent; consider flagging "STEMI pattern" and urgent reperfusion discussion.');
+    else if (chron.startsWith('New')) notes.push('New / presumed new LBBB — correlate with symptoms; apply Sgarbossa criteria if ACS is suspected.');
+  }
+  if (b === 'Complete RBBB' && chron.startsWith('New')) notes.push('New RBBB — consider acute PE, anterior ischemia or myocarditis in the right clinical context.');
+  return { notes, warns };
+}
+function updateConduction(){
+  const { notes, warns } = conductionFindings();
+  const box = document.getElementById('bbb_summary');
+  if (!notes.length && !warns.length){ box.textContent = 'Conduction summary: no bundle branch or fascicular block recorded.'; return; }
+  const esc = t => t.replace(/</g, '&lt;');
+  box.innerHTML = 'Conduction summary:<ul>' + notes.map(t => `<li>${esc(t)}</li>`).join('') + warns.map(t => `<li class="warn">${esc(t)}</li>`).join('') + '</ul>';
+}
+document.addEventListener('change', e => {
+  const item = e.target.closest('.chkItem');
+  if (item){ item.classList.toggle('on', e.target.checked); updateConduction(); }
+});
+['int_qrs','int_pr'].forEach(id => document.getElementById(id).addEventListener('input', updateConduction));
+
 // ---- critical findings banner ----
 document.querySelectorAll('#critGrid input[type=checkbox]').forEach(cb => {
   cb.addEventListener('change', updateCritBanner);
@@ -335,11 +469,23 @@ function updateCritBanner(){
   }
 }
 
-window.addEventListener('load', () => { calcHR(); calcQTc(); });
+window.addEventListener('load', () => { calcHR(); calcQTc(); renderAxisCauses(); renderBBB(); });
 
 // ---- report builder ----
 function val(id){ const el = document.getElementById(id); return el.value || '(not entered)'; }
 function buildReport(){
+  const qc = ['ax_I','ax_aVF','ax_II'].map(id => document.getElementById(id));
+  const axisCheck = qc.some(e => e.value) ? `\n  Quick-check: I ${qc[0].selectedOptions[0].text}, aVF ${qc[1].selectedOptions[0].text}, II ${qc[2].selectedOptions[0].text}` : '';
+  const ac = checkedLabels('#axCauses');
+  const axisCauses = ac.length ? `\n  Possible cause(s): ${ac.join('; ')}` : '';
+  const bc = checkedLabels('#bbbCriteria');
+  const bbbCrit = bc.length ? `\n    Criteria present: ${bc.join('; ')}` : '';
+  const sg = checkedLabels('#sgarbossa');
+  const sgb = document.getElementById('m_bbb').value === 'Complete LBBB' ? `\n    Sgarbossa: ${sg.length ? 'POSITIVE — ' + sg.join('; ') : 'negative / not met'}` : '';
+  const fasc = checkedLabels('#fascGrid');
+  const cf = conductionFindings();
+  const condLines = [...cf.notes, ...cf.warns.map(w => '! ' + w)];
+  const cond = condLines.length ? '\n  Conduction summary:\n' + condLines.map(l => '    - ' + l).join('\n') : '';
   const crit = Array.from(document.querySelectorAll('#critGrid input:checked')).map(c => c.dataset.label);
   const report = `ECG STRUCTURED INTERPRETATION REPORT
 Generated: ${new Date().toLocaleString()}
@@ -363,13 +509,15 @@ SECTION 2 — RATE AND RHYTHM
   Notes: ${val('rhy_notes')}
 
 SECTION 3 — AXIS AND INTERVALS
-  Axis: ${val('ax_axis')}
+  Axis: ${val('ax_axis')}${axisCheck}${axisCauses}
   PR: ${val('int_pr')} ms | QRS: ${val('int_qrs')} ms | QT: ${val('int_qt')} ms | R-R: ${val('int_rr')} ms
   QTc (Bazett): ${document.getElementById('qtc_result').textContent} ms
 
 SECTION 4 — MORPHOLOGY ANALYSIS
   P waves: ${val('m_p')}
   QRS complex: ${val('m_qrs')}
+  Conduction: ${val('m_bbb')}${document.getElementById('m_bbb').value !== 'None' ? ' (' + val('m_bbb_new') + ')' : ''}${bbbCrit}${sgb}
+  Fascicular block: ${fasc.length ? fasc.join(', ') : 'None'}${cond}
   ST segment: ${val('m_st')}
   T waves: ${val('m_t')}
   U waves: ${val('m_u')}
