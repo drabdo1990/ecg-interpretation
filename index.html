@@ -45,7 +45,7 @@
   .sub{color:#48566a;font-size:.8rem;margin:0 0 14px;}
   label{display:block;font-size:.82rem;font-weight:600;color:var(--navy2);margin:14px 0 6px;}
   label:first-child{margin-top:0;}
-  input[type=text],input[type=number],select,textarea{
+  input[type=text],input[type=number],input[type=password],select,textarea{
     width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:.9rem;font-family:inherit;background:#fbfcfe;color:var(--text);min-height:44px;transition:border-color .15s ease-out,box-shadow .15s ease-out;
   }
   textarea{resize:vertical;min-height:64px;line-height:1.5;}
@@ -86,7 +86,7 @@
   .calcbox ul{margin:6px 0 0;padding-left:18px;}
   .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
   .toolbar .spacer{flex:1;}
-  #reportOut{white-space:pre-wrap;font-family:'SFMono-Regular',Consolas,monospace;font-size:.82rem;background:#0f2540;color:#dce8f5;padding:16px;border-radius:8px;max-height:480px;overflow:auto;}
+  #reportOut,#aiOut{white-space:pre-wrap;font-family:'SFMono-Regular',Consolas,monospace;font-size:.82rem;background:#0f2540;color:#dce8f5;padding:16px;border-radius:8px;max-height:480px;overflow:auto;}
   .badge{display:inline-block;font-size:.7rem;padding:3px 9px;border-radius:12px;background:var(--amberbg);color:var(--amber);font-weight:700;margin-left:6px;}
   footer{max-width:1180px;margin:0 auto;padding:6px 24px calc(40px + env(safe-area-inset-bottom));color:#48566a;font-size:.75rem;line-height:1.6;}
   @supports (-webkit-touch-callout: none){ body{ -webkit-text-size-adjust:100%; } }
@@ -128,7 +128,7 @@
     <div class="row3">
       <div><label for="p_age">Age</label><input type="text" id="p_age" placeholder="e.g. 64" inputmode="numeric" autocomplete="off"></div>
       <div><label for="p_sex">Sex</label>
-        <select id="p_sex" onchange="calcQTc()"><option value="">—</option><option>Male</option><option>Female</option></select>
+        <select id="p_sex"><option value="">—</option><option>Male</option><option>Female</option></select>
       </div>
       <div><label for="p_symptoms">Presenting symptom(s)</label><input type="text" id="p_symptoms" placeholder="chest pain, palpitations, syncope..." autocomplete="off"></div>
     </div>
@@ -154,7 +154,7 @@
     <label for="t_artifact">Lead placement / artifact issues</label>
     <textarea id="t_artifact" placeholder="e.g. baseline wander, muscle tremor, misplaced limb leads..."></textarea>
     <label for="t_quality">Overall tracing quality</label>
-    <select id="t_quality"><option>Adequate for interpretation</option><option>Suboptimal — interpret with caution</option><option>Non-diagnostic / repeat required</option></select>
+    <select id="t_quality"><option value="">—</option><option>Adequate for interpretation</option><option>Suboptimal — interpret with caution</option><option>Non-diagnostic / repeat required</option></select>
   </section>
 
   <!-- Section 2: Rate & Rhythm + calculator -->
@@ -173,9 +173,9 @@
     </div>
     <div class="calcbox" id="hr_result_row" aria-live="polite">Calculated heart rate: <b id="hr_result">—</b> bpm</div>
     <label for="rhy_reg" style="margin-top:12px;">Rhythm regularity</label>
-    <select id="rhy_reg"><option>Regular</option><option>Regularly irregular</option><option>Irregularly irregular</option></select>
+    <select id="rhy_reg"><option value="">—</option><option>Regular</option><option>Regularly irregular</option><option>Irregularly irregular</option></select>
     <label for="rhy_origin">Rhythm origin</label>
-    <select id="rhy_origin"><option>Sinus</option><option>Non-sinus (specify below)</option><option>Uncertain</option></select>
+    <select id="rhy_origin"><option value="">—</option><option>Sinus</option><option>Non-sinus (specify below)</option><option>Uncertain</option></select>
     <label for="rhy_notes">Rhythm notes / diagnosis (e.g. sinus arrhythmia, AF, flutter, SVT, VT)</label>
     <textarea id="rhy_notes"></textarea>
   </section>
@@ -191,7 +191,7 @@
     </div>
     <div class="calcbox" id="ax_result_row" aria-live="polite">Suggested axis: <b id="ax_result">—</b></div>
     <label for="ax_axis">Cardiac axis <span class="hint" style="font-weight:400;">(auto-filled from quick-check; override if needed)</span></label>
-    <select id="ax_axis" onchange="renderAxisCauses();updateConduction()"><option>Normal (-30° to +90°)</option><option>Left axis deviation</option><option>Right axis deviation</option><option>Extreme axis deviation</option><option>Indeterminate</option></select>
+    <select id="ax_axis" onchange="renderAxisCauses();updateConduction()"><option value="">—</option><option>Normal (-30° to +90°)</option><option>Left axis deviation</option><option>Right axis deviation</option><option>Extreme axis deviation</option><option>Indeterminate</option></select>
     <div id="axCauses"></div>
     <div class="row3">
       <div><label for="int_pr">PR interval (ms)</label><input type="number" id="int_pr" oninput="calcQTc()" inputmode="numeric"></div>
@@ -218,7 +218,7 @@
     <div class="row">
       <div><label for="m_bbb">Conduction pattern</label>
         <select id="m_bbb" onchange="renderBBB()">
-          <option>None</option><option>Complete RBBB</option><option>Incomplete RBBB</option><option>Complete LBBB</option><option>Incomplete LBBB</option><option>Non-specific intraventricular conduction delay (IVCD)</option>
+          <option value="">—</option><option>None</option><option>Complete RBBB</option><option>Incomplete RBBB</option><option>Complete LBBB</option><option>Incomplete LBBB</option><option>Non-specific intraventricular conduction delay (IVCD)</option>
         </select>
       </div>
       <div><label for="m_bbb_new">Chronicity</label>
@@ -244,7 +244,7 @@
     <div class="row">
       <div><label for="i_primary">Primary diagnosis</label><input type="text" id="i_primary" placeholder="e.g. Anterior STEMI"></div>
       <div><label for="i_urgency">Severity / urgency</label>
-        <select id="i_urgency"><option>Routine / non-urgent</option><option>Requires prompt evaluation</option><option>Urgent — time-sensitive</option><option>Life-threatening — immediate action required</option></select>
+        <select id="i_urgency"><option value="">—</option><option>Routine / non-urgent</option><option>Requires prompt evaluation</option><option>Urgent — time-sensitive</option><option>Life-threatening — immediate action required</option></select>
       </div>
     </div>
     <label for="i_ddx">Differential diagnoses</label>
@@ -271,7 +271,7 @@
     <label for="c_symptoms">Typical symptoms / presentation context</label>
     <textarea id="c_symptoms"></textarea>
     <label for="c_significance">Incidental vs clinically significant</label>
-    <select id="c_significance"><option>Likely clinically significant</option><option>Possibly incidental — correlate clinically</option><option>Uncertain — further data needed</option></select>
+    <select id="c_significance"><option value="">—</option><option>Likely clinically significant</option><option>Possibly incidental — correlate clinically</option><option>Uncertain — further data needed</option></select>
   </section>
 
   <section class="card">
@@ -282,6 +282,20 @@
     <textarea id="r_investigations"></textarea>
     <label for="r_escalation">Escalation criteria</label>
     <textarea id="r_escalation"></textarea>
+  </section>
+
+  <!-- AI-assisted analysis (optional, sends data off-device) -->
+  <section class="card full" id="aiCard">
+    <h2><span class="num">AI</span> AI-Assisted Analysis <span class="badge">DeepSeek · optional</span></h2>
+    <p class="sub">Sends the uploaded ECG photo to the DeepSeek API for a second opinion. Suggestions only — verify against the tracing. The photo leaves this device, so crop out patient names and IDs first.</p>
+    <label for="ai_key">DeepSeek API key <span class="hint" style="font-weight:400;">(kept for this browser tab only)</span></label>
+    <input type="password" id="ai_key" autocomplete="off" spellcheck="false" placeholder="sk-...">
+    <label class="chkItem" style="margin-top:12px;"><input type="checkbox" id="ai_findings" checked> Also send my structured findings (rate, intervals, axis, conduction, critical flags — no free-text notes)</label>
+    <div class="toolbar" style="margin-top:12px;">
+      <button class="btn-primary" id="ai_run" onclick="runAI()">Analyze ECG photo</button>
+      <span id="ai_status" role="status" aria-live="polite" style="font-size:.8rem;color:#48566a;"></span>
+    </div>
+    <pre id="aiOut" style="margin-top:12px;display:none;" aria-live="polite"></pre>
   </section>
 
   <!-- Report -->
@@ -300,7 +314,7 @@
 </main>
 
 <footer>
-  Clinical decision-support tool for licensed healthcare professionals. Not a diagnostic device and not a substitute for independent clinical judgment, correlation with the patient's full presentation, and institutional protocols. All entered data and images stay on this device — nothing is sent to any server.
+  Clinical decision-support tool for licensed healthcare professionals. Not a diagnostic device and not a substitute for independent clinical judgment, correlation with the patient's full presentation, and institutional protocols. Entered data and images stay on this device unless you use the optional AI analysis, which sends the uploaded ECG photo (and, if ticked, your structured findings) to the DeepSeek API.
 </footer>
 
 <script>
@@ -346,8 +360,7 @@ function calcQTc(){
   if (qt>0 && rr>0){
     const qtc = Math.round(qt / Math.sqrt(rr/1000));
     el.textContent = qtc;
-    const limit = document.getElementById('p_sex').value === 'Female' ? 460 : 450;
-    el.className = 'qtc' + (qtc > limit ? ' long' : '');
+    el.className = 'qtc' + (qtc > 450 ? ' long' : '');
   } else { el.textContent = '—'; el.className = 'qtc'; }
 }
 
@@ -391,9 +404,9 @@ function renderAxisCauses(){
 
 // ---- bundle branch & fascicular block ----
 const BBB_CRITERIA = {
-  'Complete RBBB': ['QRS duration ≥ 120 ms','rSR′ ("M"-shaped) pattern in V1–V2','Wide, slurred S wave in I, aVL, V5–V6','Secondary ST depression / T inversion in V1–V3'],
-  'Incomplete RBBB': ['QRS duration 110–119 ms','rSR′ pattern in V1–V2','Slurred S wave in I and V6'],
-  'Complete LBBB': ['QRS duration ≥ 120 ms','Broad, notched or monophasic R in I, aVL, V5–V6','Absent septal q waves in I, V5–V6','Deep S or QS complex in V1','R-wave peak time > 60 ms in V5–V6','Discordant ST-T changes (opposite to QRS)'],
+  'Complete RBBB': ['QRS duration > 120 ms','rSR′ (M-shaped) pattern in V1–V2','Wide, slurred S wave in I, aVL, V5–V6','Secondary ST depression / T inversion in V1–V3'],
+  'Incomplete RBBB': ['QRS duration < 120 ms','rSR′ pattern in V1–V2','Slurred S wave in I and V6'],
+  'Complete LBBB': ['QRS duration > 120 ms','Broad, notched or monophasic R in I, aVL, V5–V6','Absent septal q waves in I, V5–V6','Deep S or QS complex in V1','R-wave peak time > 60 ms in V5–V6','Discordant ST-T changes (opposite to QRS)'],
   'Incomplete LBBB': ['QRS duration 110–119 ms','Absent septal q waves in I, V5–V6','LVH-like pattern with delayed R-peak in V5–V6'],
   'Non-specific intraventricular conduction delay (IVCD)': ['QRS duration > 110 ms','Morphology does not meet RBBB or LBBB criteria']
 };
@@ -414,21 +427,21 @@ function conductionFindings(){
   const fasc = checkedLabels('#fascGrid');
   const lafb = fasc.some(f => f.includes('LAFB')), lpfb = fasc.some(f => f.includes('LPFB'));
   const notes = [], warns = [];
-  if (b !== 'None'){
+  if (b && b !== 'None'){
     const n = checkedLabels('#bbbCriteria').length, tot = (BBB_CRITERIA[b] || []).length;
     notes.push(`${b} — ${n}/${tot} criteria ticked; ${chron.charAt(0).toLowerCase() + chron.slice(1)}`);
   }
   if (qrs > 0){
-    if (b.startsWith('Complete') && qrs < 120) warns.push(`QRS ${qrs} ms is < 120 ms — does not meet complete BBB duration.`);
-    if (b.startsWith('Incomplete') && (qrs < 110 || qrs >= 120)) warns.push(`QRS ${qrs} ms is outside the 110–119 ms expected for incomplete BBB.`);
-    if (b === 'None' && qrs >= 120) warns.push(`QRS ${qrs} ms (≥ 120) with no conduction pattern selected — consider BBB, IVCD, ventricular rhythm, pre-excitation, hyperkalemia or drug toxicity.`);
+    if (b.startsWith('Complete') && qrs <= 120) warns.push(`QRS ${qrs} ms is not > 120 ms — does not meet complete BBB duration.`);
+    if (b.startsWith('Incomplete') && qrs >= 120) warns.push(`QRS ${qrs} ms is ≥ 120 ms — incomplete BBB needs a QRS < 120 ms.`);
+    if ((!b || b === 'None') && qrs > 120) warns.push(`QRS ${qrs} ms (> 120) with no conduction pattern selected — consider BBB, IVCD, ventricular rhythm, pre-excitation, hyperkalemia or drug toxicity.`);
   }
   if (lafb && lpfb) warns.push('LAFB and LPFB ticked together — re-check (would imply block of both left fascicles).');
   if (lafb && axis !== AXIS.lad) warns.push('LAFB requires left axis deviation (−45° or beyond).');
   if (lpfb && axis !== AXIS.rad) warns.push('LPFB requires right axis deviation (≥ +120°) after excluding RVH / lateral MI.');
   if (b === 'Complete RBBB' && (lafb || lpfb)){
     notes.push('Bifascicular block (RBBB + ' + (lafb ? 'LAFB' : 'LPFB') + ')');
-    if (pr > 200) warns.push(`Bifascicular block with PR ${pr} ms (> 200) — "trifascicular" pattern; risk of high-grade AV block, assess for syncope and pacing need.`);
+    if (pr > 220) warns.push(`Bifascicular block with PR ${pr} ms (> 220) — "trifascicular" pattern; risk of high-grade AV block, assess for syncope and pacing need.`);
   }
   if (b === 'Complete LBBB'){
     if (checkedLabels('#sgarbossa').length) warns.push('Sgarbossa-positive LBBB — treat as STEMI equivalent; consider flagging "STEMI pattern" and urgent reperfusion discussion.');
@@ -470,6 +483,89 @@ function updateCritBanner(){
 }
 
 window.addEventListener('load', () => { calcHR(); calcQTc(); renderAxisCauses(); renderBBB(); });
+
+// ---- AI-assisted analysis (DeepSeek) ----
+const AI_MODEL = 'deepseek-flash';
+// Reference rules and chart descriptions follow "The ECG Made Easy" (8th ed.), paraphrased; they match the thresholds used above.
+const AI_SYSTEM = `You are a decision-support assistant for a clinician interpreting a 12-lead ECG photo. You give suggestions, never a final diagnosis.
+Rules:
+- Describe only what is visible. If the photo is unreadable, cropped, or leads are missing, say so and do not conclude.
+- Never invent measurements you cannot read; give approximate ranges.
+- If anything suggests STEMI, VT/VF, or complete heart block, say so first, in one line.
+Reference criteria (use these):
+- Rate: 300 / large squares between R waves (25 mm/s; large square = 200 ms, small = 40 ms).
+- Axis: normal -30 to +90 degrees. Left deviation beyond -30 (QRS mostly negative in II and III). Right deviation beyond +90 (QRS mostly negative in I).
+- PR normal 120-220 ms. QRS normal up to 120 ms; wide means over 120 ms. QTc by Bazett; abnormal above 450 ms.
+- RBBB: QRS over 120 ms, RSR' in V1, wide slurred S in V6. Partial RBBB: RSR' in V1 with QRS under 120 ms.
+- LBBB: QRS over 120 ms, broad notched R in I, aVL, V5-V6, no septal q waves, lateral T inversion. LBBB limits ST/T interpretation; a new LBBB with a suggestive history is treated as acute MI.
+- Left anterior fascicular block: marked left axis deviation, upright I, downward II and III. Left posterior: right axis deviation (rare). Bifascicular block is RBBB with LAFB; adding a long PR or both left fascicles raises the risk of higher-grade or complete block.
+Reference charts from the book (you only have these text descriptions, not the pictures). When a finding resembles one, cite it in brackets, e.g. (Fig. 2.15).
+Measurement charts:
+- Table 1.1 rate: R-R of 1, 2, 3, 4, 5, 6 large squares = 300, 150, 100, 75, 60, 50 per min. Fig. 1.4-1.5: small square 40 ms, large 200 ms; PR runs from P onset to QRS onset; QT from QRS onset to end of T; calibration pulse 10 mm = 1 mV.
+- Fig. 1.17 axis circle: I = 0, II = +60, VF = +90, III = +120, VL = -30, VR = -150 degrees. Equal R and S in a lead puts the axis at right angles to that lead.
+- Fig. 1.9-1.10 lead territories: I, II, VL left lateral; III, VF inferior; VR right atrium; V1-V2 right ventricle; V3-V4 septum and anterior LV; V5-V6 anterior and lateral LV.
+- Fig. 1.11/1.21 chest leads: V1 small R with deep S, changing to small q with tall R by V6; transition (R = S) normally at V3/V4. A later transition (V4-V5 or V5-V6) is clockwise rotation, seen with chronic lung disease and RV enlargement.
+- Fig. 1.23 limb lead reversal clues: inverted P, QRS and T in lead I and an upright T in VR. Suspect swapped arm electrodes and ask for a repeat.
+- Fig. 1.24 chest lead positions: V1/V2 in the 4th space right/left of the sternum, V4 in the 5th space midclavicular, V5 anterior axillary, V6 midaxillary line.
+- Table 3.1 rhythm: P:QRS 1:1 with regular normal QRS = sinus (atrial tachycardia if 150/min or more). More P waves than QRS = atrial tachycardia with block, second degree block, or complete block (slow wide QRS). No P with regular narrow QRS = junctional (fast = tachycardia, slow = escape). No P with irregular QRS = AF. No P with regular fast wide QRS = VT (or junctional tachycardia with BBB). No QRS = VF or standstill.
+Numeric limits:
+- Pathological Q: wider than 1 small square (40 ms) and 2 mm or more deep, usually in more than one lead. Septal q is normal if under 1 mm wide and under 2 mm deep. A Q in III alone is normal; with right axis deviation think pulmonary embolism.
+- ST: STEMI = elevation over 1 mm in 2 or more contiguous limb leads, or over 2 mm in 2 or more contiguous chest leads, or new LBBB. Ischaemic depression is 2 mm or more and horizontal; upsloping is not ischaemic; downsloping "reversed tick" suggests digoxin. ST elevation in most leads suggests pericarditis.
+- T waves are normally inverted in VR and V1, sometimes III and V2 (V2-V5 can be normal in Black patients). Abnormal inversion: ischaemia, infarct, hypertrophy, BBB, digoxin, PE, ventricular rhythms, WPW.
+- Infarct territories: anterior V2-V5 (classically V3-V4); lateral I, VL, V5-V6; anterolateral both; inferior III, VF (often II); posterior = dominant R in V1 (with ST depression V1-V3). Fig. 4.15 evolution: normal in the first hours, then ST elevation, then Q waves, ST settles in 24-48 h while T stays inverted. Persistent anterior ST elevation suggests LV aneurysm. NSTEMI = T inversion without ST elevation or Q waves.
+- LVH: R over 25 mm in V5/V6, or R (V5/V6) + S (V1/V2) over 35 mm; more reliable with lateral T inversion (I, VL, V5-V6). RVH: dominant R in V1, deep S in V6, right axis deviation, peaked P, T inversion V1-V2. Peaked P = right atrial (Fig. 4.1); broad bifid P = left atrial (Fig. 4.2).
+- QTc above 450 ms is likely abnormal; 500 ms or more risks torsade de pointes.
+- Normal variants: partial RBBB (RSR' in V1, QRS under 120 ms), isolated dominant R in V1, Q with inverted T in III alone, high take-off ST elevation after an S wave, tall T waves, prominent U waves, athlete patterns.
+- AF: no P, irregular baseline, irregular QRS. Flutter: sawtooth waves about 300/min with regular block (2:1 gives about 150/min). Atrial tachycardia: abnormal P at 150/min or more. VT: over 120/min, broad QRS (over 160 ms strongly favours VT), no P, left axis deviation or concordant chest leads. Torsade: QRS swings between upright and downward. VF: disorganised trace.
+- AV block: first degree PR over 220 ms (the book's chapter 8 summary says 200). Mobitz I: PR lengthens until a beat drops. Mobitz II: constant PR with dropped beats. 2:1 block. Complete: P and QRS dissociated with a slow escape (under 50/min wide, 50-60 narrow).
+- WPW: PR under 120 ms with a delta wave; type A has dominant R in V1, type B has deep S in V1 and anterior T inversion.
+- Hyperkalaemia: absent P, peaked T, no ST segment, wide QRS. Hypokalaemia: flat T, U waves, long QT. Hypercalcaemia: short QT. Digoxin: downsloping ST depression and T inversion. PE: often just sinus tachycardia; classic signs are right axis, RBBB, dominant V1 R, T inversion V1-V3, persistent S in V6, S1Q3T3.
+Example charts (figure: what it shows):
+- Fig. 2.15 RBBB: RSR' in V1, deep wide S in V6, QRS 160 ms. Fig. 2.16 LBBB: M pattern in I, VL, V5-V6, inverted lateral T. Fig. 2.20 left anterior hemiblock: upright I, dominant S in II-III. Figs. 2.23, 7.10 bifascicular: left axis, RSR' in V1, wide slurred S in V6.
+- Fig. 2.3 Mobitz I (PR 260, 280, 320, then a drop). Fig. 2.4 Mobitz II. Figs. 2.5-2.6 2:1 block. Figs. 2.7-2.8, 3.8 complete block (slow wide escape QRS).
+- Figs. 3.25-3.26, 5.1 AF. Figs. 3.16-3.18 flutter (sawtooth in II, VR). Fig. 3.15 atrial tachycardia 150/min. Figs. 3.19-3.20 junctional tachycardia. Figs. 3.22-3.23, 7.11 VT (regular broad QRS, 200/min). Fig. 3.27 VF. Figs. 3.28, 7.3-7.4 WPW.
+- Anterior MI Figs. 6.2, 6.3, 4.8 (Q waves and ST elevation V1-V4). Anterolateral Fig. 4.9. Inferior Figs. 4.10, 6.8 (ST elevation II, III, VF, Q in III/VF). Posterior Figs. 4.11, 6.11. NSTEMI Figs. 4.16, 6.12 (T inversion). Angina Fig. 6.1 (horizontal ST depression V3-V5).
+- Fig. 4.4 severe RVH. Fig. 4.6 LVH (tall R in V5-V6, deep S in V1-V2, inverted lateral T). Figs. 4.5, 6.15 PE. Fig. 4.17 digoxin with AF. Fig. 7.6 long QT (QTc 520 ms). Fig. 7.7 torsade. Figs. 7.8, 7.12 sick sinus. Figs. 7.13-7.15 pacemaker spikes.
+If the clinician's entered findings are given, compare them with the photo and list every disagreement.
+Answer in under 350 words with these headings: Technical quality; Rate and rhythm; Axis and intervals; Morphology; Possible interpretation (state confidence: high, medium or low); Closest reference chart(s); Disagreements with clinician; What to verify.`;
+const aiKey = document.getElementById('ai_key');
+try { aiKey.value = sessionStorage.getItem('ds_key') || ''; } catch (e) {}
+aiKey.addEventListener('input', () => { try { sessionStorage.setItem('ds_key', aiKey.value.trim()); } catch (e) {} });
+function structuredFindings(){
+  const t = id => document.getElementById(id).value || 'not entered';
+  const crit = Array.from(document.querySelectorAll('#critGrid input:checked')).map(c => c.dataset.label);
+  return [
+    `Heart rate: ${document.getElementById('hr_result').textContent} bpm; regularity: ${t('rhy_reg')}; origin: ${t('rhy_origin')}`,
+    `Axis: ${t('ax_axis')}`,
+    `PR ${t('int_pr')} ms, QRS ${t('int_qrs')} ms, QT ${t('int_qt')} ms, RR ${t('int_rr')} ms, QTc ${document.getElementById('qtc_result').textContent} ms`,
+    `Conduction: ${t('m_bbb')} (${t('m_bbb_new')}); criteria ticked: ${checkedLabels('#bbbCriteria').join('; ') || 'none'}; fascicular: ${checkedLabels('#fascGrid').join('; ') || 'none'}`,
+    `Critical findings flagged: ${crit.join(', ') || 'none'}`
+  ].join('\n');
+}
+async function runAI(){
+  const status = document.getElementById('ai_status'), out = document.getElementById('aiOut'), btn = document.getElementById('ai_run');
+  const key = aiKey.value.trim(), img = document.getElementById('ecgPreview').src;
+  if (!key){ status.textContent = 'Enter your DeepSeek API key.'; return; }
+  if (!/^data:image\/(jpeg|png|gif|webp);/.test(img)){ status.textContent = 'Upload an ECG photo first (JPEG, PNG, GIF or WebP).'; return; }
+  const text = 'Analyze this ECG photo.' + (document.getElementById('ai_findings').checked ? "\n\nClinician's entered findings (compare with the photo):\n" + structuredFindings() : '');
+  btn.disabled = true; status.textContent = 'Analyzing…'; out.style.display = 'none';
+  try {
+    const res = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({ model: AI_MODEL, messages: [
+        { role: 'system', content: AI_SYSTEM },
+        { role: 'user', content: [{ type: 'text', text }, { type: 'image_url', image_url: { url: img } }] }
+      ] }),
+      signal: AbortSignal.timeout(120000)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error((data.error && data.error.message) || 'HTTP ' + res.status);
+    out.textContent = 'AI SUGGESTION — verify against the tracing. Not a diagnosis.\n\n' + ((data.choices && data.choices[0] && data.choices[0].message.content) || '(empty response)');
+    out.style.display = 'block'; status.textContent = '';
+  } catch (e) { status.textContent = 'AI request failed: ' + e.message; }
+  finally { btn.disabled = false; }
+}
 
 // ---- report builder ----
 function val(id){ const el = document.getElementById(id); return el.value || '(not entered)'; }
@@ -516,7 +612,7 @@ SECTION 3 — AXIS AND INTERVALS
 SECTION 4 — MORPHOLOGY ANALYSIS
   P waves: ${val('m_p')}
   QRS complex: ${val('m_qrs')}
-  Conduction: ${val('m_bbb')}${document.getElementById('m_bbb').value !== 'None' ? ' (' + val('m_bbb_new') + ')' : ''}${bbbCrit}${sgb}
+  Conduction: ${val('m_bbb')}${['', 'None'].includes(document.getElementById('m_bbb').value) ? '' : ' (' + val('m_bbb_new') + ')'}${bbbCrit}${sgb}
   Fascicular block: ${fasc.length ? fasc.join(', ') : 'None'}${cond}
   ST segment: ${val('m_st')}
   T waves: ${val('m_t')}
@@ -543,10 +639,11 @@ This report is a clinical decision-support summary and does not replace independ
   document.getElementById('reportOut').textContent = report;
 }
 function copyReport(){
-  const text = document.getElementById('reportOut').textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    document.getElementById('reportStatus').textContent = 'Report copied to clipboard.';
-  });
+  buildReport(); // always copy the current form, never a stale or placeholder report
+  const status = document.getElementById('reportStatus');
+  navigator.clipboard.writeText(document.getElementById('reportOut').textContent)
+    .then(() => { status.textContent = 'Report copied to clipboard.'; })
+    .catch(() => { status.textContent = 'Copy failed — select the report text and copy it manually.'; });
 }
 </script>
 
