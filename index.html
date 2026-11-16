@@ -379,7 +379,7 @@ const AXIS_CAUSES = {
 };
 function renderChecks(containerId, title, items){
   const el = document.getElementById(containerId);
-  if (!items){ el.innerHTML = ''; return; }
+  if (!items){ el.replaceChildren(); return; }
   const lid = containerId + 'Label';
   el.innerHTML = `<label id="${lid}" style="margin-top:14px;">${title}</label><div class="critGrid" role="group" aria-labelledby="${lid}">` +
     items.map(t => `<label class="chkItem"><input type="checkbox" data-label="${t}"> ${t}</label>`).join('') + '</div>';
